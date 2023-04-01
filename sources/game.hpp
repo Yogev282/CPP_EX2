@@ -10,15 +10,22 @@ using namespace ariel;
 
     class Game{
 
+        Player player1;
+        Player player2;
+        Card *deck;
+        int deckSize;
+        string lastTurn;
+        string log;
+
         public:
         Game(Player player1, Player player2);
         void playTurn();
-        string printLastTurn();
+        void printLastTurn();
         void playAll();
-        string printWiner();
+        void printWiner();
         void printLog();
         void printStats();
-
+        void shuffleAndDeal();
     };
 
 
