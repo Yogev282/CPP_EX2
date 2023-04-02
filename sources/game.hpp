@@ -10,15 +10,16 @@ using namespace ariel;
 
     class Game{
 
-        Player player1;
-        Player player2;
+        Player& player1;
+        Player& player2;
         Card *deck;
         int deckSize;
         string lastTurn;
         string log;
+        bool turnOver = true;
 
         public:
-        Game(Player player1, Player player2);
+        Game(Player& player1, Player& player2);
         void playTurn();
         void printLastTurn();
         void playAll();

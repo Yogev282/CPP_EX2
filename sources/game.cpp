@@ -1,12 +1,18 @@
 #include "game.hpp"
 #include <string.h>
+#include <random>
+#include <algorithm>
 
 using namespace std;
 
-Game :: Game(Player p1, Player p2)
+Game :: Game(Player& p1, Player& p2) : player1(p1), player2(p2)
 {
-    this->player1 = p1;
-    this->player2 = p2;
+
+    if (&p1 == &p2)
+    {
+        throw std::runtime_error ("Players can't be the same!");
+    }
+    
     this->deck = new Card[52];
     this->deckSize = 0;
     this->shuffleAndDeal();
@@ -15,59 +21,63 @@ Game :: Game(Player p1, Player p2)
 
 void Game :: playTurn()
 {
+    
     if(this->player1.stacksize() == 0 || this->player2.stacksize() == 0){
         return;
     }
 
-    this->lastTurn = "";
+    if(this->turnOver == true)
+    {
+        this->lastTurn = "";
+    }
 
     Card c1 = this->player1.playCard();
     Card c2 = this->player2.playCard();
-    this->deckSize = this->deckSize + 2;
-    
+    this->deckSize = this->deckSize + 1;
+
     int compare = c1.compareto(c2);
     if(compare == 1)
     {
-        this->player1.addCardtoEnd(c1);
-        this->player1.addCardtoEnd(c2);
-        for(int i = 0; i < this->deckSize; i++)
-        {
-            this->player1.addCardtoEnd(this->deck[i]);
-        }
+        this->player1.addStats(this->deckSize, "win");
+        this->player2.addStats(this->deckSize, "lose");
         this->deckSize = 0;
 
-        this -> lastTurn =  this->player1.getName() + " played " + c1.print() + " " +
-        this->player2.getName() + " played " + c2.print() + ". " + this->player1.getName() + " wins. " + this->lastTurn;
+        this -> lastTurn =  this->lastTurn + this->player1.getName() + " played " + c1.print() + " " +
+        this->player2.getName() + " played " + c2.print() + ". " + this->player1.getName() + " wins. ";
+
+        this->turnOver = true;
 
     }
     else if(compare == -1)
     {
-        this->player2.addCardtoEnd(c1);
-        this->player2.addCardtoEnd(c2);
-        for(int i = 0; i < this->deckSize; i++)
-        {
-            this->player2.addCardtoEnd(this->deck[i]);
-        }
+        this->player1.addStats(this->deckSize, "lose");
+        this->player2.addStats(this->deckSize, "win");
         this->deckSize = 0;
-        this -> lastTurn =  this->player1.getName() + " played " + c1.print() + " " +
-        this->player2.getName() + " played " + c2.print() + ". " + this->player2.getName() + " wins. " + this->lastTurn;
+
+        this -> lastTurn = this->lastTurn + this->player1.getName() + " played " + c1.print() + " " +
+        this->player2.getName() + " played " + c2.print() + ". " + this->player2.getName() + " wins. ";
+
+        this->turnOver = true;
+
     }
     else
     {
-        this->deck[this->deckSize] = c1;
-        this->deckSize++;
-        this->deck[this->deckSize+1] = c2;
+
+        this->player1.addStats(this->deckSize, "draw");
+        this->player2.addStats(this->deckSize, "draw");
+
         this->deckSize++;
 
-        this -> lastTurn =  this->player1.getName() + " played " + c1.print() + " " +
-        this->player2.getName() + " played " + c2.print() + ". Draw. " + this->lastTurn;
+        this -> lastTurn = this->lastTurn + this->player1.getName() + " played " + c1.print() + " " +
+        this->player2.getName() + " played " + c2.print() + ". Draw. ";
 
+        this->turnOver = false;
         this->playTurn();
         
     }
-
-    this->log = this->log + this->lastTurn + "\n\n";
-    
+    if(this->turnOver == true){
+        this->log = this->log + this->lastTurn + "\n\n";
+    }
 };
 
 void Game :: printLastTurn()
@@ -85,13 +95,17 @@ void Game :: playAll()
 
 void Game :: printWiner()
 {
-    if(this->player1.stacksize() == 0)
+    if(this->player1.cardesTaken() > this->player2.cardesTaken())
     {
-       cout << this->player2.getName() << endl;
+        cout << this->player1.getName() <<  endl;
+    }
+    else if(this->player1.cardesTaken() < this->player2.cardesTaken())
+    {
+        cout << this->player2.getName() << endl;
     }
     else
     {
-        cout << this->player1.getName() << endl;
+        cout << "Draw!" << endl;
     }
 };
 
@@ -99,12 +113,15 @@ void Game :: printLog()
 {
     cout << this->log << endl;
 };
-/// @brief gdfgdfgdf////////////////////////////////////////////////////////////////////////////////
+
+
 void Game :: printStats()
-{
+{      
+    this->player1.printStats();
+    this->player2.printStats();
     
 };
-/// @brief gdfgdfgdf ///////////////////////////////////////////////////////////////////////////////
+
 
 void Game::shuffleAndDeal() {
     std::string suits[4] = {"Hearts", "Diamonds", "Clubs", "Spades"};
@@ -115,13 +132,9 @@ void Game::shuffleAndDeal() {
         }
     }
 
-    for(int i = 0; i < 52; i++)
-    {
-        int j = rand() % 52;
-        Card tmp = this->deck[i];
-        this->deck[i] = this->deck[j];
-        this->deck[j] = tmp;
-    }
+    std::mt19937 rng(std::random_device{}()); // random seed generator by mt19937 algorithm
+    std::shuffle(this->deck, this->deck + 52, rng); // shuffle deck by randomizing order (seed)
+
 
     for(int i = 0; i < 26; i++)
     {

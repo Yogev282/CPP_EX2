@@ -25,12 +25,7 @@ int Player :: stacksize()
 
 int Player :: cardesTaken()
 {
-    int tmp = this->stackSize - 26;
-    if (tmp < 0)
-    {
-        return 0;
-    }
-    return tmp;
+    return this->score;
 };
 
 void Player :: addCardtoEnd(Card c)
@@ -51,6 +46,11 @@ void Player :: addCardtoStart(Card c)
 
 Card Player :: playCard()
 {
+    if(this->stackSize == 0)
+    {
+        return Card();
+    }
+
     Card tmp = this->cards[0];
     for(int i = 0; i < this->stackSize; i++)
     {
@@ -65,4 +65,36 @@ Card Player :: playCard()
 string Player :: getName()
 {
     return this->name;
+};
+
+void Player :: addStats(int cardsTaken, string result)
+{
+    if(result == "win")
+    {
+        this->stats[0] = this->stats[0] + 1;
+        this->score = this->score + cardsTaken;
+    }
+    else if(result == "lose")
+    {
+        this->stats[1] = this->stats[1] + 1;
+    }
+    else
+    {
+        this->stats[2] = this->stats[2] + 1;
+    }
+};
+
+
+void Player :: printStats()
+{
+    // wins, loses, draws amounts
+    cout << this->name << " has " << this->stats[0] << " wins, " <<
+    this->stats[1] << " loses and " << this->stats[2] << " draws." << endl;
+
+    // total cards won
+    cout << this->name << " has won " << this->score << " cards." << endl;
+
+    // Win and draw percentages
+    cout << this->name << " has " << (this->stats[0]) * 100 / 26 << "% win percentage and " <<
+    (this->stats[2]) * 100 / 26 << "% draw percentage." << endl;
 };

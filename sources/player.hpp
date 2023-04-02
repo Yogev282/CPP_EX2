@@ -13,6 +13,7 @@
         Card* cards;
         int stackSize;
         int stats[3] = {0,0,0}; // 0 - wins, 1 - loses, 2 - draws
+        int score = 0;
 
         public:
         Player(string name);
@@ -23,7 +24,8 @@
         void addCardtoStart(Card card);
         Card playCard();
         string getName();
-        
+        void addStats(int cardsTaken, string result);
+        void printStats();
     };
 
 
