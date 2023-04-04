@@ -8,21 +8,23 @@ using namespace std;
 Game :: Game(Player& p1, Player& p2) : player1(p1), player2(p2)
 {
 
-    if (&p1 == &p2)
-    {
-        throw std::runtime_error ("Players can't be the same!");
-    }
-    
     this->deck = new Card[52];
     this->deckSize = 0;
     this->shuffleAndDeal();
     
 };
-
-void Game :: playTurn()
+// cant play after 26 turns
+void Game :: playTurn() 
 {
     
+
+    if (&this->player1 == &this->player2){
+        throw std::runtime_error ("Players can't be the same!");
+        return;
+    }
+    
     if(this->player1.stacksize() == 0 || this->player2.stacksize() == 0){
+        throw std::runtime_error ("One or both players have no cards left!");
         return;
     }
 
@@ -33,40 +35,62 @@ void Game :: playTurn()
 
     Card c1 = this->player1.playCard();
     Card c2 = this->player2.playCard();
-    this->deckSize = this->deckSize + 1;
+    this->deckSize = this->deckSize + 2;
+    this->turns++;
 
     int compare = c1.compareto(c2);
     if(compare == 1)
     {
         this->player1.addStats(this->deckSize, "win");
         this->player2.addStats(this->deckSize, "lose");
-        this->deckSize = 0;
 
         this -> lastTurn =  this->lastTurn + this->player1.getName() + " played " + c1.print() + " " +
         this->player2.getName() + " played " + c2.print() + ". " + this->player1.getName() + " wins. ";
 
         this->turnOver = true;
 
+        this->deckSize = 0;
+        this->log = this->log + this->lastTurn + "\n\n";
+
     }
     else if(compare == -1)
     {
         this->player1.addStats(this->deckSize, "lose");
         this->player2.addStats(this->deckSize, "win");
-        this->deckSize = 0;
 
         this -> lastTurn = this->lastTurn + this->player1.getName() + " played " + c1.print() + " " +
         this->player2.getName() + " played " + c2.print() + ". " + this->player2.getName() + " wins. ";
 
         this->turnOver = true;
 
+        this->deckSize = 0;
+        this->log = this->log + this->lastTurn + "\n\n";
+
     }
     else
     {
+        // if both players have no cards left after the draw
+         if(this->player1.stacksize() == 0 || this->player2.stacksize() == 0){
+            this->player1.addStats((this->deckSize) / 2, "draw");
+            this->player2.addStats((this->deckSize) / 2, "draw");
+            return;
+        }
 
-        this->player1.addStats(this->deckSize, "draw");
-        this->player2.addStats(this->deckSize, "draw");
+        this->player1.playCard();
+        this->player2.playCard();
+        this->deckSize = this->deckSize + 2;
+        this-> turns++;
 
-        this->deckSize++;
+        // if both players have no cards left after they played the second card
+        if(this->player1.stacksize() == 0 || this->player2.stacksize() == 0){
+            this->player1.addStats((this->deckSize) / 2 , "draw");
+            this->player2.addStats((this->deckSize) / 2 , "draw");
+            return;
+        }
+
+        // if both player still have cards left after the draw
+        this->player1.addStats(0, "draw");
+        this->player2.addStats(0, "draw");
 
         this -> lastTurn = this->lastTurn + this->player1.getName() + " played " + c1.print() + " " +
         this->player2.getName() + " played " + c2.print() + ". Draw. ";
@@ -74,9 +98,6 @@ void Game :: playTurn()
         this->turnOver = false;
         this->playTurn();
         
-    }
-    if(this->turnOver == true){
-        this->log = this->log + this->lastTurn + "\n\n";
     }
 };
 
@@ -95,6 +116,13 @@ void Game :: playAll()
 
 void Game :: printWiner()
 {
+    if(this-> turns != 26)
+    {
+        cout << "the players played " << this->turns << endl;
+        cout << "Game is not over yet!" << endl;
+        return;
+    }
+
     if(this->player1.cardesTaken() > this->player2.cardesTaken())
     {
         cout << this->player1.getName() <<  endl;
@@ -105,7 +133,7 @@ void Game :: printWiner()
     }
     else
     {
-        cout << "Draw!" << endl;
+        throw std::runtime_error ("Draw!");
     }
 };
 

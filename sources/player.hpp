@@ -4,6 +4,7 @@
     #include <string>
     #include <iostream>
     #include "card.hpp"
+    #include <array>
 
     using namespace std;
     using namespace ariel;
@@ -12,7 +13,8 @@
         string name;
         Card* cards;
         int stackSize;
-        int stats[3] = {0,0,0}; // 0 - wins, 1 - loses, 2 - draws
+        std::array<int, 3> stats{0, 0, 0}; // 0 - wins, 1 - loses, 2 - draws
+        
         int score = 0;
 
         public:

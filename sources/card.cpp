@@ -16,6 +16,15 @@ Card :: Card(){
 };
 
 int Card :: compareto(Card other){
+    // Ace wins everything except 2
+    if(this->value == 1 && (other.value != 1 && other.value != 2)){
+        return 1;
+    }
+    if((this->value != 1 && other.value != 2) && other.value == 1){
+        return -1;
+    }
+    
+
     if(this->value > other.value){
         return 1;
     }

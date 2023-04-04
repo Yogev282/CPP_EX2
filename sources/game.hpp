@@ -17,6 +17,7 @@ using namespace ariel;
         string lastTurn;
         string log;
         bool turnOver = true;
+        int turns = 0;
 
         public:
         Game(Player& player1, Player& player2);

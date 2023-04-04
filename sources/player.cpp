@@ -78,9 +78,10 @@ void Player :: addStats(int cardsTaken, string result)
     {
         this->stats[1] = this->stats[1] + 1;
     }
-    else
+    else if(result == "draw")
     {
         this->stats[2] = this->stats[2] + 1;
+        this->score = this->score + cardsTaken;
     }
 };
 
